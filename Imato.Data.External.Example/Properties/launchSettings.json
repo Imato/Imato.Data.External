@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Imato.Data.External.Example": {
+      "commandName": "Project",
+      "commandLineArgs": "Year=2000 Month=2"
+    }
+  }
+}

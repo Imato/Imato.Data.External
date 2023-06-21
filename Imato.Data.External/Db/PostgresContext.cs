@@ -6,7 +6,8 @@
         {
         }
 
-        public override Task SaveAsync<T>(IEnumerable<T> data)
+        public override Task SaveAsync<T>(IEnumerable<T> data,
+            string? columns = null)
         {
             throw new NotImplementedException();
         }

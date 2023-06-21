@@ -2,10 +2,12 @@
 {
     public class EmptyContext : DbContext
     {
-        public override Task SaveAsync<T>(IEnumerable<T> data)
+        public override Task SaveAsync<T>(
+            IEnumerable<T> data,
+            string? columns = null)
         {
             if (data == null || !data.Any())
-                return Task.CompletedTask; ;
+                return Task.CompletedTask;
 
             ConsoleOutput.WriteCsv(data);
             return Task.CompletedTask;

@@ -13,7 +13,7 @@ namespace Imato.Data.External
             this.connectionString = connectionString;
         }
 
-        public abstract Task SaveAsync<T>(IEnumerable<T> data);
+        public abstract Task SaveAsync<T>(IEnumerable<T> data, string? columns = null);
 
         public static IDbContext Create(string? tableName = null, string? connectionString = null)
         {

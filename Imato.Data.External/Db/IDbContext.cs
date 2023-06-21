@@ -2,6 +2,6 @@
 {
     public interface IDbContext
     {
-        Task SaveAsync<T>(IEnumerable<T> data);
+        Task SaveAsync<T>(IEnumerable<T> data, string? columns = null);
     }
 }

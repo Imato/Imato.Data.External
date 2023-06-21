@@ -8,7 +8,8 @@ namespace Imato.Data.External
     {
         public static LogLevel LogLevel { get; set; } = LogLevel.Error;
 
-        public static void WriteCsv<T>(IEnumerable<T>? data)
+        public static void WriteCsv<T>(IEnumerable<T>? data,
+            IEnumerable<string>? columnsList = null)
         {
             if (data == null)
             {
@@ -39,6 +40,17 @@ namespace Imato.Data.External
                 {
                     columns = string.Join(";", dic.Keys.Select(x => $"\"{x}\""));
                     Console.WriteLine(columns);
+                }
+
+                if (columnsList?.Count() > 0)
+                {
+                    foreach (var key in dic.Keys)
+                    {
+                        if (!columnsList.Contains(key))
+                        {
+                            dic.Remove(key);
+                        }
+                    }
                 }
 
                 Console.WriteLine(Strings.ToCsv(dic, false));

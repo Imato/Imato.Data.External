@@ -33,43 +33,62 @@ namespace Imato.Data.External
 
         private SqlBulkCopy CreateBulkCopy<T>(IEnumerable<string>? fields = null)
         {
-            fields ??= typeof(T).GetProperties().Select(x => x.Name);
+            var properties = typeof(T).GetProperties().Select(x => x.Name);
+            if (fields != null && fields.Any())
+            {
+                var notExists = fields.Where(x => !properties.Contains(x));
+                if (notExists.Any())
+                {
+                    throw new ArgumentOutOfRangeException($"Not exists properties {string.Join(",", notExists)} of type {typeof(T).Name}");
+                }
+            }
+            fields ??= properties;
             return CreateBulkCopy(fields);
         }
 
-        public override async Task SaveAsync<T>(IEnumerable<T> data)
+        public override async Task SaveAsync<T>(
+            IEnumerable<T> data,
+            string? columns = null)
         {
             if (tableName != null)
             {
                 ConsoleOutput.LogInformation($"Save data to table {tableName}");
                 ConsoleOutput.LogDebug(data);
 
+                var columnsList = columns?.Split(";") ?? Array.Empty<string>();
+
                 var dictionaryList = data as IEnumerable<IDictionary<string, object>>;
                 if (dictionaryList != null)
                 {
-                    await SaveAsync(dictionaryList);
+                    await SaveAsync(dictionaryList, columnsList);
                     return;
                 }
 
-                using var bc = CreateBulkCopy<T>();
+                using var bc = CreateBulkCopy<T>(columnsList);
                 using var reader = ObjectReader.Create(data);
                 await bc.WriteToServerAsync(reader);
                 return;
             }
         }
 
-        private async Task SaveAsync(IEnumerable<IDictionary<string, object>> data)
+        private async Task SaveAsync(
+            IEnumerable<IDictionary<string, object>> data,
+            string[] columns)
         {
             List<string> fields = new List<string>();
             var dataTable = new DataTable();
+
             foreach (var d in data)
             {
                 if (fields.Count == 0)
                 {
                     foreach (var key in d.Keys)
                     {
-                        dataTable.Columns.Add(key);
-                        fields.Add(key);
+                        if (!(columns.Length > 0 && !columns.Contains(key)))
+                        {
+                            dataTable.Columns.Add(key);
+                            fields.Add(key);
+                        }
                     }
 
                     ConsoleOutput.LogDebug($"Fields: {string.Join(";", fields)}");
@@ -78,7 +97,10 @@ namespace Imato.Data.External
                 var row = dataTable.NewRow();
                 foreach (var key in d.Keys)
                 {
-                    row[key] = d[key];
+                    if (!(columns.Length > 0 && !columns.Contains(key)))
+                    {
+                        row[key] = d[key];
+                    }
                 }
                 dataTable.Rows.Add(row);
             }

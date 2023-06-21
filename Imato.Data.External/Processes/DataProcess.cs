@@ -19,7 +19,8 @@
                 var data = (await DataAsync())
                     .Union(Data());
                 ConsoleOutput.LogDebug("Save data");
-                await _dbContext.SaveAsync(data);
+                var columns = GetParameter("Columns");
+                await _dbContext.SaveAsync(data, columns);
             }
             catch (Exception ex)
             {

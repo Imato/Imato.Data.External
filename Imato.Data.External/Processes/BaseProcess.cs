@@ -16,8 +16,8 @@ namespace Imato.Data.External
             var logLevel = GetParameter("LogLevel");
             if (logLevel != null)
             {
-                ConsoleOutput.LogDebug($"LogLevel: {logLevel}");
                 ConsoleOutput.LogLevel = (LogLevel)Enum.Parse(typeof(LogLevel), logLevel);
+                ConsoleOutput.LogDebug($"LogLevel: {logLevel}");
             }
             ConsoleOutput.LogDebug("Create process");
         }
